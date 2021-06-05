@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.impute import SimpleImputer
+
+x = np.linspace(0,10,1000)
+y = np.sin(x)
+
+plt.plot(x,y)
+plt.scatter(x,y)
+plt.scatter(x[::10], y[::10],color='red')
+plt.plot(x,y,color='b')
+plt.plot(x,np.cos(x),color='g')
+
+# Covid_19_date.XLSX is a downloaded file
+df = pd.read_excel('~/Downloads/Covid_19_data.XLSX')
+
+# shows first 10 rows in a table format
+df.head(10)
+
+df['Date']=pd.to_datetime(df['Date'])
+imputer = SimpleImputer(strategy='constant')
+
+"""Grouping by country"""
+df2=df.groupby(['Country', 'Date'])[['Country','Date','cases','deaths']].sum().reset_index()
+
+# Counting number of unique countries
+countries = df2['Country'].unique()
+len(countries)
+
+"""For plotting each country in each presentation"""
+for idx in range(0,len(countries)):
+    C = df2[df2['Country']==countries[idx]].reset_index()
+    plt.scatter(np.arange(0,len(C)),C['cases'],color='blue',label='Confirmed')
+    plt.scatter(np.arange(0,len(C)),C['deaths'],color='red',label='Deaths')
+    plt.title(countries[idx])
+    plt.xlabel('Days since the first suspect')
+    plt.ylabel('Number of cases')
+    plt.legend()
+    plt.show()
+    
+ """Grouping whole countries in one"""
+df3 = df2.groupby(['Date'])[['Date','cases','deaths']].sum().reset_index()
+C = df3
+plt.scatter(np.arange(0,len(C)),C['cases'],color='blue',label='Confirmed')
+plt.scatter(np.arange(0,len(C)),C['deaths'],color='red',label='Deaths')
+plt.title('World')
+plt.xlabel('Days since the first suspect')
+plt.ylabel('Number of cases')
+plt.legend()
+plt.show()
